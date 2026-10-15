@@ -1,0 +1,127 @@
+{
+  "job": {
+    "job_id": 376151921185105,
+    "name": "World Bank Population Pipeline",
+    "format": "MULTI_TASK",
+    "created_time": "2026-07-22T10:03:12Z",
+    "creator_user_name": "acaranil844@gmail.com",
+    "run_as_user_name": "acaranil844@gmail.com",
+    "max_concurrent_runs": 1,
+    "schedule": {
+      "quartz_cron_expression": "0 0 8 * * ?",
+      "timezone_id": "UTC",
+      "pause_status": "PAUSED"
+    },
+    "queue": {
+      "enabled": true
+    },
+    "tasks": [
+      {
+        "task_key": "Bronze_Extract",
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "/Users/acaranil844@gmail.com/02_Bronze_WorldBank_Extract",
+          "source": "WORKSPACE"
+        },
+        "depends_on": []
+      },
+      {
+        "task_key": "Silver_Transform",
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "/Users/acaranil844@gmail.com/03_Silver_WorldBank_Transform",
+          "source": "WORKSPACE"
+        },
+        "depends_on": [
+          {
+            "task_key": "Bronze_Extract"
+          }
+        ]
+      },
+      {
+        "task_key": "Gold_Aggregate",
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "/Users/acaranil844@gmail.com/04_Gold_WorldBank_Aggregate",
+          "source": "WORKSPACE"
+        },
+        "depends_on": [
+          {
+            "task_key": "Silver_Transform"
+          }
+        ]
+      }
+    ]
+  },
+  "latest_successful_run": {
+    "run_id": 1090140798395007,
+    "job_id": 376151921185105,
+    "run_name": "World Bank Population Pipeline",
+    "trigger": "ONE_TIME",
+    "start_time": "2026-10-15T12:00:00Z",
+    "end_time": "2026-10-15T12:02:07Z",
+    "run_duration_ms": 126919,
+    "state": {
+      "life_cycle_state": "TERMINATED",
+      "result_state": "SUCCESS"
+    },
+    "status": {
+      "state": "TERMINATED",
+      "termination_details": {
+        "code": "SUCCESS",
+        "type": "SUCCESS"
+      }
+    },
+    "run_page_url": "https://dbc-8f4ad288-7a4d.cloud.databricks.com/?o=7474657392901526#job/376151921185105/run/1090140798395007"
+  },
+  "produced_tables": {
+    "bronze": {
+      "table": "workspace.default.worldbank_indicators_bronze",
+      "type": "MANAGED",
+      "provider": "delta",
+      "storage": "s3://dbstorage-prod-n8spdrqknw/uc/...",
+      "row_count": 52668,
+      "indicators": [
+        "EN.POP.DNST (Population Density)",
+        "SP.URB.TOTL.IN.ZS (Urban Population %)",
+        "EG.ELC.ACCS.ZS (Electricity Access %)"
+      ],
+      "countries": 262,
+      "year_range": "1960-2025"
+    },
+    "silver": {
+      "table": "workspace.default.worldbank_indicators_silver",
+      "type": "MANAGED",
+      "provider": "delta",
+      "row_count": 51678,
+      "countries": 261,
+      "rows_dropped_from_bronze": 990
+    },
+    "gold": [
+      {
+        "table": "workspace.default.worldbank_urbanization_velocity",
+        "type": "MANAGED",
+        "provider": "delta",
+        "row_count": 261,
+        "method": "lag(value, 5) for 5-year rolling urban growth rate",
+        "top_country": "Burundi (28.88% 5yr growth)"
+      },
+      {
+        "table": "workspace.default.worldbank_density_spike",
+        "type": "MANAGED",
+        "provider": "delta",
+        "row_count": 214,
+        "method": "Absolute density change 2014 to 2024",
+        "top_country": "Monaco (+713.56 people/sq km)"
+      },
+      {
+        "table": "workspace.default.worldbank_vulnerable_urbanization",
+        "type": "MANAGED",
+        "provider": "delta",
+        "row_count": 15,
+        "method": "Urban YoY growth >1% AND electricity YoY growth <0.5%",
+        "top_country": "Mali (vulnerability gap 11.08)"
+      }
+    ]
+  }
+}
