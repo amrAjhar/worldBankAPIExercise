@@ -1,9 +1,3 @@
-Here's a technical summary you can use as the foundation for your GitHub README:
-
----
-
-## World Bank Multi-Indicator Analytics Pipeline
-
 ### Overview
 
 An end-to-end data engineering pipeline built on **Databricks** that extracts human-activity and spatial-trends indicators from the **World Bank API**, processes them through a **medallion architecture** (Bronze → Silver → Gold), and produces business-ready analytical tables for identifying urbanization patterns, density shifts, and infrastructure gaps across 261 countries spanning 1960–2025.
